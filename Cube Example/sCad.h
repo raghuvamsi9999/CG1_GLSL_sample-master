@@ -8,7 +8,8 @@
 #include<iostream>
 #include"Vector2.h"
 #include"Vector3.h"
-
+#include "VSMathlib.h"
+#include "VSShaderlib.h"
 using namespace std;
 class sCad
 {
@@ -25,6 +26,7 @@ public:
 	void reshape_1(int w, int h) ;
 	void drawpolygon_1();
 	void display_1(void);
+
 	void drawTest_2();
 	void point2();
 	void drawpolygon_2();
@@ -32,6 +34,7 @@ public:
 	void mouse_2(int btn, int state, int x, int y);
 	void reshape_2(int w, int h) ;
 	void display_2(void);
+
 	void drawTest_3();
 	void point3();
 	void drawpolygon_3();
@@ -39,6 +42,7 @@ public:
 	void mouse_3(int btn, int state, int x, int y);
 	void reshape_3(int w, int h) ;
 	void display_3(void);
+
 	void drawTest_4();
 	void point4();
 	void drawpolygon_4();
@@ -47,7 +51,9 @@ public:
 	void reshape_4(int w, int h) ;
 	void display_4(void);
 
-
+// 5th window functions
+	void draw_s(int vao);
+	int points;
 	GLsizei MOUSEx = 0, MOUSEy = 0;
 	GLfloat BLUE[3] = { 0,0,1 };
 	GLfloat GREEN[3] = { 0, 1, 0 };
@@ -81,7 +87,7 @@ public:
 	GLint window_size[2] = { 350, 350 };
 	GLint window_center[2] = { 175, 175 };
 	vector<vector<Vector3>> polygons;
-	int polygoncount = 0;
+	unsigned int polygoncount = 0;
 	float angle = 0.0f;
 	// actual vector representing the camera's direction
 	float lx = 0.0f, lz = -1.0f;
@@ -93,5 +99,7 @@ public:
 	float radious = 10;
 	int w1, h1;
 	float ratio;
+	GLuint buffers[4];
+
 };
 

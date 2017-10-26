@@ -1,15 +1,12 @@
 #include "sCad.h"
 
-
-
 sCad::sCad()
 {
 }
-
-
 sCad::~sCad()
 {
 }
+
 void sCad::initOpenGL()
 {
 	// some GL settings
@@ -35,7 +32,6 @@ void sCad::processNormalKeys(unsigned char key, int x, int y)
 	if (key == 's')
 		xRotated -= 3.0f;
 }
-
 void sCad::pressKey(int key, int xx, int yy)
 {
 	switch (key) {
@@ -143,6 +139,8 @@ glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, st[i]); // Print a character on 
 }
 }*/
 
+float angleRot = 0.0f;
+
 void sCad::init(void)
 {
 	glClearColor(0.0, 0.0, 0.0, 0.0);  // When screen cleared, use black.
@@ -208,7 +206,7 @@ void sCad::display_1(void)
 
 	glMatrixMode(GL_MODELVIEW);  // Tell opengl that we are doing model matrix work. (drawing)
 	glLoadIdentity(); // Clear the model matrix
-
+	
 	glColor3f(1.0, 1.0, 1.0);
 
 
@@ -221,6 +219,8 @@ void sCad::display_1(void)
 	gluLookAt(x, 0.0f, z,
 		0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f);
+	glRotatef(angleRot, 0, 1.5, 1.0);
+	angleRot += 0.1f;
 	drawpolygon_1();
 	//drawHprimid1();
 
@@ -681,7 +681,6 @@ void sCad::reshape_4(int w, int h) {
 	glViewport(0, 0, w, h);
 	gluOrtho2D(-window_center[0], window_center[1], window_center[1], -window_center[0]);
 
-
 	glMatrixMode(GL_MODELVIEW);
 }
 void sCad::display_4(void)
@@ -695,4 +694,91 @@ void sCad::display_4(void)
 	point4();
 	glFlush();
 	glutSwapBuffers();
+}
+
+void sCad::draw_s(int vao)
+{
+	float vertices1[] = {
+		0.0f, 1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f, 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f,  1.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,  0.0f, 1.0f, 1.0f, 1.0f,  1.0f, 1.0f, 1.0f, 1.0f,  1.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f, 1.0f,  0.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 1.0f, 1.0f
+	};
+	unsigned int faceIndex[] = {
+		0,1,2,0,2,3,
+		4,5,6,4,6,7,
+		8,9,10,8,10,11,
+		12,13,14,12,14,15,
+		16,17,18,16,18,19,
+		20,21,22,20,22,23
+	};
+	if (polygons.size()>0){
+		size_t arr_size = polygons[0].size() * 4;
+		GLfloat *vertices = new float[arr_size];
+		long Fcnt =0;
+		for (unsigned int i = 0; i <polygons[0].size(); i++)
+		{
+			Vector3 vec = polygons[0][i];
+			vertices[Fcnt] = vec.getVector3x() / 100.0;
+			Fcnt++;
+			vertices[Fcnt] = vec.getVector3y() / 100.0; 
+			Fcnt++;
+			vertices[Fcnt] = vec.getVector3z() / 100.0;
+			Fcnt++;
+			vertices[Fcnt] = 1.0;
+			Fcnt++;
+			//glVertex2i(vec[0].getVector3z(), vec[0].getVector3y());
+		}	
+		glBindVertexArray(vao);
+		// create buffers for our vertex data
+		
+		//vertex coordinates buffer
+		glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)*4* polygons[0].size(), vertices);
+		//glEnableVertexAttribArray(VSShaderLib::VERTEX_COORD_ATTRIB);
+		//glVertexAttribPointer(VSShaderLib::VERTEX_COORD_ATTRIB, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+		//index buffer
+	/*	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faceIndex), faceIndex, GL_STATIC_DRAW);*/
+
+		// unbind the VAO
+		glBindVertexArray(0);
+		delete vertices;
+	}
+	else
+	{
+		// create the VAO
+		glBindVertexArray(vao);
+
+		// create buffers for our vertex data
+		
+		//vertex coordinates buffer
+		glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)*96, vertices1);
+		/*glEnableVertexAttribArray(VSShaderLib::VERTEX_COORD_ATTRIB);
+		glVertexAttribPointer(VSShaderLib::VERTEX_COORD_ATTRIB, 4, GL_FLOAT, 0, 0, 0);*/
+/*
+		//texture coordinates buffer
+		glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(VSShaderLib::TEXTURE_COORD_ATTRIB);
+		glVertexAttribPointer(VSShaderLib::TEXTURE_COORD_ATTRIB, 2, GL_FLOAT, 0, 0, 0);
+
+		//normals buffer
+		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(VSShaderLib::NORMAL_ATTRIB);
+		glVertexAttribPointer(VSShaderLib::NORMAL_ATTRIB, 3, GL_FLOAT, 0, 0, 0);
+*/
+	//index buffer
+	/*	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faceIndex), faceIndex, GL_STATIC_DRAW);*/
+
+		// unbind the VAO
+		glBindVertexArray(0);
+	}
+	
 }

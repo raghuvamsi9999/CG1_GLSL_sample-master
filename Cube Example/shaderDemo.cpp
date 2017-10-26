@@ -8,7 +8,6 @@
 //
 // The code comes with no warranties, use it at your own risk.
 // You may use it, or parts of it, wherever you want.
-//
 // If you do use it I would love to hear about it. Just post a comment
 // at Lighthouse3D.com
 
@@ -78,6 +77,7 @@ void changeSize(int w, int h) {
 
 void renderScene(void) {
 
+	cObj.draw_s(vao);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// load identity matrices
 	vsml->loadIdentity(VSMathLib::VIEW);
@@ -90,7 +90,14 @@ void renderScene(void) {
 	vsml->matricesToGL();
 	// render VAO
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, faceCount*3, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_LINE_LOOP, faceCount*3, GL_UNSIGNED_INT, 0);
+	int points = 0;
+	if (cObj.polygons.size()>0) points = cObj.polygons[0].size();
+	
+	glDrawArrays(GL_LINE_LOOP, 0, points);
+	//glDrawArrays(GL_POINTS, 0, 8);
+
+	glutPostRedisplay();
 	 //swap buffers
 	glutSwapBuffers();
 }
@@ -102,8 +109,8 @@ void renderScene(void) {
 
 void processKeys(unsigned char key, int xx, int yy)
 {
-	switch(key) {
-
+	switch(key) 
+	{
 		case 27:
 			glutLeaveMainLoop();
 			break;
@@ -111,7 +118,6 @@ void processKeys(unsigned char key, int xx, int yy)
 		case 'c': 
 			printf("Camera Spherical Coordinates (%f, %f, %f)\n", alpha, beta, r);
 			break;
-
 	}
 
 //  uncomment this if not using an idle func
@@ -253,15 +259,15 @@ void initOpenGL()
 	glBindVertexArray(vao);
 
 	// create buffers for our vertex data
-	GLuint buffers[4];
-	glGenBuffers(4, buffers);
+	
+	glGenBuffers(4, cObj.buffers);
 
 	//vertex coordinates buffer
-	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, cObj.buffers[0]);
+	glBufferData(GL_ARRAY_BUFFER, 10000, NULL, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(VSShaderLib::VERTEX_COORD_ATTRIB);
 	glVertexAttribPointer(VSShaderLib::VERTEX_COORD_ATTRIB, 4, GL_FLOAT, 0, 0, 0);
-
+/*
 	//texture coordinates buffer
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
@@ -277,7 +283,7 @@ void initOpenGL()
 	//index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[3]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faceIndex), faceIndex, GL_STATIC_DRAW);
-
+*/
 	// unbind the VAO
 	glBindVertexArray(0);
 }
@@ -317,55 +323,7 @@ int main(int argc, char **argv) {
 		//std::cerr << "Usage: " << argv[0] << "SOURCE DESTINATION" << std::endl;
 		//return 1;
 	}
-	if(shader){
-	//  GLUT initialization
-		glutInit(&argc, argv);
-		glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA|GLUT_MULTISAMPLE);
-
-		glutInitContextVersion (3, 3);
-		glutInitContextProfile (GLUT_CORE_PROFILE );
-		glutInitContextFlags(GLUT_DEBUG);
-
-		glutInitWindowPosition(100,100);
-		glutInitWindowSize(512,512);
-		glutCreateWindow("Lighthouse3D - Simple Shader Demo");
-
-	//  Callback Registration
-		glutDisplayFunc(renderScene);
-		glutReshapeFunc(changeSize);
-		glutIdleFunc(renderScene);
-
-	//	Mouse and Keyboard Callbacks
-		glutKeyboardFunc(processKeys);
-		glutMouseFunc(processMouseButtons);
-		glutMotionFunc(processMouseMotion);
-
-		glutMouseWheelFunc ( mouseWheel ) ;
-
-	//	return from main loop
-		glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
-
-	//	Init GLEW
-		glewExperimental = GL_TRUE;
-		glewInit();
-
-		printf ("Vendor: %s\n", glGetString (GL_VENDOR));
-		printf ("Renderer: %s\n", glGetString (GL_RENDERER));
-		printf ("Version: %s\n", glGetString (GL_VERSION));
-		printf ("GLSL: %s\n", glGetString (GL_SHADING_LANGUAGE_VERSION));
-
-		if (!setupShaders())
-			return(1);
-
-		initOpenGL();
-
-		initVSL();
-
-		//  GLUT main loop
-		glutMainLoop();
-
-		return(0);
-	}else{
+//	if(!shader){
 
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
@@ -421,8 +379,59 @@ int main(int argc, char **argv) {
 
 		cObj.initOpenGL();
 
-		glutMainLoop();
+/*		glutMainLoop();
 		return 0;
-	}
+	}else 
+	{
+		//  GLUT initialization
+		glutInit(&argc, argv);
+		glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA | GLUT_MULTISAMPLE);
+
+		glutInitContextVersion(3, 3);
+		glutInitContextProfile(GLUT_CORE_PROFILE);
+		glutInitContextFlags(GLUT_DEBUG);
+
+		glutInitWindowPosition(100, 100);
+		glutInitWindowSize(512, 512);
+*/		
+		glutInitWindowPosition(800, 0);
+		glutCreateWindow("Shader's Demonstration");
+		//  Callback Registration
+		glutDisplayFunc(renderScene);
+		glutReshapeFunc(changeSize);
+		//glutIdleFunc(renderScene);
+
+		//	Mouse and Keyboard Callbacks
+		glutKeyboardFunc(processKeys);
+		glutMouseFunc(processMouseButtons);
+		glutMotionFunc(processMouseMotion);
+
+		glutMouseWheelFunc(mouseWheel);
+
+		//	return from main loop
+		glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+
+		//	Init GLEW
+		glewExperimental = GL_TRUE;
+		glewInit();
+
+		printf("Vendor: %s\n", glGetString(GL_VENDOR));
+		printf("Renderer: %s\n", glGetString(GL_RENDERER));
+		printf("Version: %s\n", glGetString(GL_VERSION));
+		printf("GLSL: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+		if (!setupShaders())
+			return(1);
+
+		initOpenGL();
+
+		initVSL();
+
+		//  GLUT main loop
+		glutMainLoop();
+
+		return(0);
+//	}
+	
 }
 

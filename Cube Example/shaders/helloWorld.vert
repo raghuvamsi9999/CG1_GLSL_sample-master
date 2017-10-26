@@ -10,6 +10,6 @@ out vec4 color;
 
 void main()
 {
-	color = position;
+	//color = position;
 	gl_Position = pvm * position ;
 } 

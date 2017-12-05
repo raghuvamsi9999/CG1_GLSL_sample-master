@@ -31,8 +31,10 @@ void sCad::processNormalKeys(unsigned char key, int x, int y)
 		xRotated += 3.0f;
 	if (key == 's')
 		xRotated -= 3.0f;
+	if (key == 'x')
+		MenuOption = EXTRUDE;
 }
-void sCad::pressKey(int key, int xx, int yy)
+void sCad::pressSpecialKey(int key, int xx, int yy)
 {
 	switch (key) {
 	case GLUT_KEY_LEFT: angle += -0.1f; break;
@@ -714,29 +716,43 @@ void sCad::draw_s(int vao)
 		16,17,18,16,18,19,
 		20,21,22,20,22,23
 	};
-	if (polygons.size()>0){
-		size_t arr_size = polygons[0].size() * 4;
+	if (polygons.size()>0)
+	{
+		tPoints =0;
+		for (unsigned int j = 0; j <polygons.size(); j++)
+			tPoints += polygons[j].size();
+		size_t arr_size = tPoints * 4;
 		GLfloat *vertices = new float[arr_size];
-		long Fcnt =0;
-		for (unsigned int i = 0; i <polygons[0].size(); i++)
+		int Fcnt = 0;
+		int tLines = tPoints*2;
+		GLint *lines = new int[tLines];
+int Lcnt =0;
+		for (unsigned int j = 0; j <polygons.size(); j++)
 		{
-			Vector3 vec = polygons[0][i];
-			vertices[Fcnt] = vec.getVector3x() / 100.0;
-			Fcnt++;
-			vertices[Fcnt] = vec.getVector3y() / 100.0; 
-			Fcnt++;
-			vertices[Fcnt] = vec.getVector3z() / 100.0;
-			Fcnt++;
-			vertices[Fcnt] = 1.0;
-			Fcnt++;
-			//glVertex2i(vec[0].getVector3z(), vec[0].getVector3y());
-		}	
+			for (unsigned int i = 0; i <polygons[j].size(); i++)
+			{
+				Vector3 vec = polygons[j][i];
+				vertices[Fcnt] = vec.getVector3x() / 100.0;
+				Fcnt++;
+				vertices[Fcnt] = vec.getVector3y() / 100.0;
+				Fcnt++;
+				vertices[Fcnt] = vec.getVector3z() / 100.0;
+				Fcnt++;
+				vertices[Fcnt] = 1.0;
+				Fcnt++;
+				//glVertex2i(vec[0].getVector3z(), vec[0].getVector3y());
+				lines[Lcnt] = i; Lcnt++;
+				lines[Lcnt] = i+1;Lcnt++;
+			}
+	//		lines[Lcnt-1] = i + 1; 
+		}
+			
 		glBindVertexArray(vao);
 		// create buffers for our vertex data
 		
 		//vertex coordinates buffer
 		glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)*4* polygons[0].size(), vertices);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)*4* tPoints, vertices);
 		//glEnableVertexAttribArray(VSShaderLib::VERTEX_COORD_ATTRIB);
 		//glVertexAttribPointer(VSShaderLib::VERTEX_COORD_ATTRIB, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -750,35 +766,81 @@ void sCad::draw_s(int vao)
 	}
 	else
 	{
-		// create the VAO
-		glBindVertexArray(vao);
-
-		// create buffers for our vertex data
-		
-		//vertex coordinates buffer
-		glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)*96, vertices1);
-		/*glEnableVertexAttribArray(VSShaderLib::VERTEX_COORD_ATTRIB);
-		glVertexAttribPointer(VSShaderLib::VERTEX_COORD_ATTRIB, 4, GL_FLOAT, 0, 0, 0);*/
-/*
-		//texture coordinates buffer
-		glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(VSShaderLib::TEXTURE_COORD_ATTRIB);
-		glVertexAttribPointer(VSShaderLib::TEXTURE_COORD_ATTRIB, 2, GL_FLOAT, 0, 0, 0);
-
-		//normals buffer
-		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(VSShaderLib::NORMAL_ATTRIB);
-		glVertexAttribPointer(VSShaderLib::NORMAL_ATTRIB, 3, GL_FLOAT, 0, 0, 0);
-*/
-	//index buffer
-	/*	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faceIndex), faceIndex, GL_STATIC_DRAW);*/
-
-		// unbind the VAO
-		glBindVertexArray(0);
+//		// create the VAO
+//		glBindVertexArray(vao);
+//
+//		// create buffers for our vertex data
+//		
+//		//vertex coordinates buffer
+//		glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+//		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)*96, vertices1);
+//		/*glEnableVertexAttribArray(VSShaderLib::VERTEX_COORD_ATTRIB);
+//		glVertexAttribPointer(VSShaderLib::VERTEX_COORD_ATTRIB, 4, GL_FLOAT, 0, 0, 0);*/
+///*
+//		//texture coordinates buffer
+//		glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
+//		glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
+//		glEnableVertexAttribArray(VSShaderLib::TEXTURE_COORD_ATTRIB);
+//		glVertexAttribPointer(VSShaderLib::TEXTURE_COORD_ATTRIB, 2, GL_FLOAT, 0, 0, 0);
+//
+//		//normals buffer
+//		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
+//		glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
+//		glEnableVertexAttribArray(VSShaderLib::NORMAL_ATTRIB);
+//		glVertexAttribPointer(VSShaderLib::NORMAL_ATTRIB, 3, GL_FLOAT, 0, 0, 0);
+//*/
+//	//index buffer
+//	/*	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
+//		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faceIndex), faceIndex, GL_STATIC_DRAW);*/
+//
+//		// unbind the VAO
+//		glBindVertexArray(0);
 	}
 	
+}
+
+void sCad::processMenuEvents(int option)
+{
+	std::cout << "Option is";
+
+	switch (option) {
+	case EXTRUDE:
+		cout << "EXTRUDE\n";
+		MenuOption = EXTRUDE;
+		Edit = false;
+		break;
+	case TRANSFORM:
+		cout << "TRANSFORM\n";
+		MenuOption = TRANSFORM;
+		Edit = false;
+		break;
+	case ERASE:
+		cout << "ERASE\n";
+		MenuOption = ERASE;
+		Edit = false;
+		break;
+	case EXIT:
+		cout << "EXIT\n";
+		MenuOption = EXIT;
+		Edit = false;
+		break;
+	}
+}
+
+void sCad::createGLUTMenus() 
+{
+	int menu;
+
+	// create the menu and
+	// tell glut that "processMenuEvents" will
+	// handle the events
+	menu = glutCreateMenu(sCad::processMenuEvents);
+
+	//add entries to our menu
+	glutAddMenuEntry("EXTRUDE", EXTRUDE);
+	glutAddMenuEntry("TRANSFORM", TRANSFORM);
+	glutAddMenuEntry("ERASE", ERASE);
+	glutAddMenuEntry("EXIT", EXIT);
+	// attach the menu to the right button
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }

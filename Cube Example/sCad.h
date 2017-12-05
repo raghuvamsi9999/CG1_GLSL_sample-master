@@ -16,10 +16,16 @@ class sCad
 public:
 	sCad();
 	~sCad();
-
+	
+	enum Menu {
+		EXTRUDE, TRANSFORM, ERASE, EXIT 
+	}MenuOption;
+	enum DrawOptions {
+		LINES
+	};
 	void initOpenGL();
 	void processNormalKeys(unsigned char key, int x, int y);
-	void pressKey(int key, int xx, int yy);
+	void pressSpecialKey(int key, int xx, int yy);
 	void drawHprimid1();
 	void drawHprimid();
 	void init(void);
@@ -53,12 +59,15 @@ public:
 
 // 5th window functions
 	void draw_s(int vao);
-	int points;
+	int tPoints = 0;
 	GLsizei MOUSEx = 0, MOUSEy = 0;
 	GLfloat BLUE[3] = { 0,0,1 };
 	GLfloat GREEN[3] = { 0, 1, 0 };
 	GLfloat point = 5;
 	vector<Vector2> mousePoints[4];
+
+	void processMenuEvents(int option);
+	void createGLUTMenus();
 	/*  //lighting
 	GLfloat LightAmbient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
 	GLfloat LightDiffuse[] = { 0.5f, 0.5f, 0.5f, 1.0f };
@@ -73,9 +82,7 @@ public:
 	bool putCurrrentVerctor = false;
 	bool polystart = false;
 	unsigned int count = 0;
-	enum DrawingOptions {
-		LINES, RECTANGLES, CIRCLES, POLYGON, TRANSFORM, ERASE, EXIT
-	};
+	
 	//coordinates for HALF PRISM
 	GLfloat points[5][3] = { { 1,0,0 },{ 0,3,0 },{ -1,0,0 },{ 0,0,1 },{ 0,0,0 } };
 	int window_1, window_2, window_3, window_4;

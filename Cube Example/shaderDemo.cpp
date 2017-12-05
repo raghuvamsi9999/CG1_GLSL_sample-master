@@ -1,18 +1,3 @@
-//
-// Lighthouse3D.com GLSL Core Tutorial - Hello World Example
-//
-//
-// This demo was built for learning purposes only.
-// Some code could be severely optimised, but I tried to
-// keep as simple and clear as possible.
-//
-// The code comes with no warranties, use it at your own risk.
-// You may use it, or parts of it, wherever you want.
-// If you do use it I would love to hear about it. Just post a comment
-// at Lighthouse3D.com
-
-// Have Fun :-)
-
 #include <math.h>
 #include <string>
 
@@ -91,10 +76,10 @@ void renderScene(void) {
 	// render VAO
 	glBindVertexArray(vao);
 	//glDrawElements(GL_LINE_LOOP, faceCount*3, GL_UNSIGNED_INT, 0);
-	int points = 0;
-	if (cObj.polygons.size()>0) points = cObj.polygons[0].size();
+	//int points = 0;
+	//if (cObj.polygons.size()>0) points = cObj.polygons[0].size();
 	
-	glDrawArrays(GL_LINE_LOOP, 0, points);
+	glDrawArrays(GL_LINE_LOOP, 0, cObj.tPoints);
 	//glDrawArrays(GL_POINTS, 0, 8);
 
 	glutPostRedisplay();
@@ -114,7 +99,6 @@ void processKeys(unsigned char key, int xx, int yy)
 		case 27:
 			glutLeaveMainLoop();
 			break;
-
 		case 'c': 
 			printf("Camera Spherical Coordinates (%f, %f, %f)\n", alpha, beta, r);
 			break;
@@ -303,7 +287,7 @@ void initVSL() {
 
 void d1(void) { cObj.display_1(); }
 void r1(int w, int h) { cObj.reshape_1(w, h); }
-void p1(int key, int xx, int yy) { cObj.pressKey(key, xx, yy); }
+void p1(int key, int xx, int yy) { cObj.pressSpecialKey(key, xx, yy); }
 void d2(void) { cObj.display_2(); }
 void r2(int w, int h) { cObj.reshape_2(w, h); }
 void p2(unsigned char key, int x, int y) { cObj.processNormalKeys(key, x, y); }
@@ -336,7 +320,7 @@ int main(int argc, char **argv) {
 		glutSetWindowTitle("3D View");
 		glutDisplayFunc(d1);
 		glutReshapeFunc(r1);
-		//glutKeyboardFunc(keyboard);
+		glutKeyboardFunc(p2);
 		//glutKeyboardFunc(processNormalKeys);
 		glutSpecialFunc(p1);
 		// here are the new entries

@@ -12,5 +12,6 @@ public:
 	~Vector3();
 private:
 	int x, y, z;
+	bool selected;
 };
 
